@@ -2,6 +2,7 @@
 
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 require('dotenv').config();
 
@@ -17,9 +18,17 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
   console.log('Connection to db failed: ' + err);
 });
 
+
+
 app.get('/test', (req,res) =>{
   res.send('Hello world')
 });
+/*
+app.use(bodyParser.urlencoded({
+    extended: true
+}));*/
+//app.use(bodyParser.raw({type: 'text/json' }));
+app.use(bodyParser.json());
 
 app.use('/ideas', ideaRouter);
 
