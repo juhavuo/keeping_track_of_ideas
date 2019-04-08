@@ -5,6 +5,8 @@ const app = express();
 
 require('dotenv').config();
 
+const ideaRouter = require('./routes/idearoute');
+
 const mongoose = require('mongoose');
 
 mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}:${process.env.DB_PORT}/ideas`, {
@@ -18,5 +20,7 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
 app.get('/test', (req,res) =>{
   res.send('Hello world')
 });
+
+app.use('/ideas', ideaRouter);
 
 app.listen(process.env.APP_PORT);
