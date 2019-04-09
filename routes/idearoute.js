@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
   });
 });
 
-//for testing purposes, maybe for superuser, needs to add authorization
+//for testing purposes, maybe for superuser, needs to add authorization then
 router.get('/all', (req,res)=>{
   Idea.find()
   .exec()
@@ -65,6 +65,34 @@ router.get('/public/timetest', (req,res) =>{
     res.status(200).json(docs);
   }).catch(err=>{
     res.status(500).json(docs);
+  });
+});
+
+
+//changing the posted idea form public to private or other way around, needs autohorization of that user added later
+router.patch('/:ideaId/changeVisibility', (req,res)=>{
+  const id = req.params.ideaId;
+  const is_private = req.body.is_private;
+
+  Idea.updateOne({_id: id},{$set: {private: is_private}})
+  .exec()
+  .then(result => {
+    res.status(200).json({result});
+  }).catch(err =>{
+    res.status(500).json({error: err});
+  });
+});
+
+//delete the posted // IDEA
+router.delete('/:ideaId', (req,res) =>{
+  const id = req.params.ideaId;
+  console.log(id);
+  Idea.remove({_id: id})
+  .exec()
+  .then(result => {
+    res.status(200).json(result);
+  }).catch(err =>{
+    res.status(500).json({error: err});
   });
 });
 
