@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const ideaRouter = require('./routes/idearoute');
+const userRouter = require('./routes/userroute');
 
 const mongoose = require('mongoose');
 
@@ -32,4 +33,6 @@ app.use(bodyParser.json());
 
 app.use('/ideas', ideaRouter);
 
-app.listen(process.env.APP_PORT);
+app.use('/users', userRouter);
+
+app.listen(3000);
