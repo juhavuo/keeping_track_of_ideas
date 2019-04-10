@@ -19,7 +19,7 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
   console.log('Connection to db failed: ' + err);
 });
 
-
+mongoose.set('useCreateIndex', true);
 
 app.get('/test', (req,res) =>{
   res.send('Hello world')

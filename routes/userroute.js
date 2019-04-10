@@ -22,9 +22,15 @@ router.post('/signup', (req,res)=>{
       username: uname,
       password: hash
     });
+    /*
+    User.find({'username': uname})
+    .exec()
+    .then(userdata =>{
+      console.log(userdata);
+    })
+    .catch(err3 =>{console.log(err3)});*/
 
     console.log(hash);
-
 
     user.save().then(result =>{
       console.log(result);
