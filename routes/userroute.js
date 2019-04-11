@@ -22,24 +22,45 @@ router.post('/signup', (req,res)=>{
       username: uname,
       password: hash
     });
-    /*
-    User.find({'username': uname})
-    .exec()
-    .then(userdata =>{
-      console.log(userdata);
-    })
-    .catch(err3 =>{console.log(err3)});*/
 
     console.log(hash);
 
     user.save().then(result =>{
       console.log(result);
       res.status(200).json(user);
-    }).catch(err2 =>{
-      res.status(500).json({error: err2});
+    }).catch(saveError =>{
+      res.status(500).json({error: saveError});
     });
-  }).catch(err =>{
-    {error: err};
+  }).catch(hashError =>{
+    {error: hashError};
+  });
+});
+
+router.post('/login', (req,res)=>{
+  const uname = req.body.username;
+  const pword = req.body.password;
+
+  User.findOne({username:uname})
+  .exec()
+  .then(result =>{
+
+    if(result!=null){
+      const hash = result.password
+      bcrypt.compare(pword,hash).then(bcryptRes=>{
+        if(bcryptRes){
+          res.status(200).json({message: "login succeeded"});
+        }else{
+          res.status(200).json({message: "login failed"});
+        }
+      }).catch(bcryptError =>{
+        res.status(500).json({error, bcryptError});
+      })
+    }else{
+      res.status(200).json({message: "login failed"});
+    }
+  })
+  .catch(findError => {
+    res.status(500).json({error: findError});
   });
 });
 
