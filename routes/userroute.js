@@ -10,6 +10,9 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const saltRound = 12;
 
+const session = require('express-session');
+const passport = require('passport');
+
 router.post('/signup', (req,res)=>{
   const uname = req.body.username;
   const pword = req.body.password;
@@ -44,18 +47,21 @@ router.post('/login', (req,res)=>{
   .exec()
   .then(result =>{
 
-    if(result!=null){
+    if(result!=null){ //username exists in database
       const hash = result.password
       bcrypt.compare(pword,hash).then(bcryptRes=>{
         if(bcryptRes){
           res.status(200).json({message: "login succeeded"});
+
+
+
         }else{
           res.status(200).json({message: "login failed"});
         }
       }).catch(bcryptError =>{
         res.status(500).json({error, bcryptError});
       })
-    }else{
+    }else{ //username doesn't exist in database
       res.status(200).json({message: "login failed"});
     }
   })

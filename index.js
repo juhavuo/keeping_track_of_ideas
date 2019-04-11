@@ -11,6 +11,21 @@ const userRouter = require('./routes/userroute');
 
 const mongoose = require('mongoose');
 
+const fs = require('fs');
+const https =require('https');
+//const http = require('http');
+
+const session = require('express-session');
+const passport = require('passport');
+
+const sslkey = fs.readFileSync('ssl-key.pem');
+const sslcert = fs.readFileSync('ssl-cert.pem')
+
+const options = {
+      key: sslkey,
+      cert: sslcert
+};
+
 mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}:${process.env.DB_PORT}/ideas`, {
   useNewUrlParser: true
 }).then(() => {
@@ -20,6 +35,16 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
 });
 
 mongoose.set('useCreateIndex', true);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+  cookie: { //secure: true ,when htpps
+    maxAge: 2 * 60 * 60 * 1000} // 2 hours
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/test', (req,res) =>{
   res.send('Hello world')
@@ -35,4 +60,9 @@ app.use('/ideas', ideaRouter);
 
 app.use('/users', userRouter);
 
-app.listen(3000);
+https.createServer(options, app).listen(3000);
+/*
+http.createServer((req, res) => {
+      res.writeHead(301, { 'Location': 'https://localhost:3000' + req.url });
+      res.end();
+}).listen(8080);*/
