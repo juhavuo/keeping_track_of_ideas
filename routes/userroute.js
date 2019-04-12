@@ -13,6 +13,56 @@ const saltRound = 12;
 const session = require('express-session');
 const passport = require('passport');
 
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+const LocalStrategy = require('passport-local').Strategy;
+passport.use(new LocalStrategy(
+  (username, password, done) => {
+
+    console.log(username);
+    console.log(password);
+    User.findOne({username:username})
+    .exec()
+    .then(result =>{
+
+      if(result!=null){ //username exists in database
+        const hash = result.password
+        console.log(hash);
+        bcrypt.compare(password,hash).then(bcryptRes=>{
+          if(bcryptRes){
+            //res.status(200).json({message: "login succeeded"});
+            console.log('success');
+            return done(null, {username: username});
+            //
+          }else{
+            done(null, false, {message: 'Login failed'});
+            return;
+            //res.status(200).json({message: "login failed"})
+          }
+        }).catch(bcryptError =>{
+          done(null, false, {message: 'Login error'});
+          return;
+          //res.status(500).json({error, bcryptError});
+        })
+      }else{ //username doesn't exist in database
+        done(null, false, {message: 'Login failed'});
+        return;
+        //res.status(200).json({message: "login failed"});
+      }
+    })
+    .catch(findError => {
+      done(null, false, {message: 'Login error'});
+      return;
+      //res.status(500).json({error: findError});
+  })
+}));
+
 router.post('/signup', (req,res)=>{
   const uname = req.body.username;
   const pword = req.body.password;
@@ -39,7 +89,13 @@ router.post('/signup', (req,res)=>{
   });
 });
 
-router.post('/login', (req,res)=>{
+router.post('/login', passport.authenticate('local'), (req,res) =>{
+  res.send('end');
+});
+
+
+
+  /*
   const uname = req.body.username;
   const pword = req.body.password;
 
@@ -52,9 +108,7 @@ router.post('/login', (req,res)=>{
       bcrypt.compare(pword,hash).then(bcryptRes=>{
         if(bcryptRes){
           res.status(200).json({message: "login succeeded"});
-
-
-
+          //
         }else{
           res.status(200).json({message: "login failed"});
         }
@@ -67,7 +121,7 @@ router.post('/login', (req,res)=>{
   })
   .catch(findError => {
     res.status(500).json({error: findError});
-  });
-});
+  });*/
+
 
 module.exports = router;
