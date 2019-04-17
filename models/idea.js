@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const ideaSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   owner: String,
-  private: Boolean,
+  is_private: Boolean,
   title: String,
   details: String,
   keywords: [{type: String}],

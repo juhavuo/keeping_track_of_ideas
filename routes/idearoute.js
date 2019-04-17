@@ -4,6 +4,10 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+const cors = require('cors');
+
+router.use(cors());
+
 router.post('/', (req, res) => {
 
   /*
@@ -17,7 +21,7 @@ router.post('/', (req, res) => {
   const idea = new Idea({
     _id: new mongoose.Types.ObjectId(),
     owner: req.body.owner,
-    private: req.body.private,
+    is_private: req.body.is_private,
     title: req.body.title,
     details: req.body.details,
     keywords: req.body.keywords,
@@ -46,7 +50,7 @@ router.get('/all', (req,res)=>{
 
 //get all public ideas, this is for all
 router.get('/public', (req,res) =>{
-  Idea.find({'private': false})
+  Idea.find({'is_private': false})
   .exec()
   .then(docs => {
     res.status(200).json(docs);
@@ -56,10 +60,10 @@ router.get('/public', (req,res) =>{
 });
 
 //testing to get messages from certain time period
-router.get('/public/timetest', (req,res) =>{
+router.post('/public/timetest', (req,res) =>{
   const timeline_begin = req.body.timeline_begin;
   const timeline_end = req.body.timeline_end;
-  Idea.find({$and: [{'private': false},{'time':{$gt: new Date(timeline_begin), $lt: new Date(timeline_end)}}]})
+  Idea.find({$and: [{'is_private': false},{'time':{$gt: new Date(timeline_begin), $lt: new Date(timeline_end)}}]})
   .exec()
   .then(docs =>{
     res.status(200).json(docs);
@@ -74,7 +78,7 @@ router.patch('/:ideaId/changeVisibility', (req,res)=>{
   const id = req.params.ideaId;
   const is_private = req.body.is_private;
 
-  Idea.updateOne({_id: id},{$set: {private: is_private}})
+  Idea.updateOne({_id: id},{$set: {is_private: is_private}})
   .exec()
   .then(result => {
     res.status(200).json({result});

@@ -13,6 +13,13 @@ const saltRound = 12;
 const session = require('express-session');
 const passport = require('passport');
 
+const fs = require('fs');
+const util = require('util');
+
+const cors = require('cors');
+
+router.use(cors());
+
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -80,7 +87,7 @@ router.post('/signup', (req,res)=>{
 
     user.save().then(result =>{
       console.log(result);
-      res.status(200).json(user);
+      res.status(200).json(result);
     }).catch(saveError =>{
       res.status(500).json({error: saveError});
     });
@@ -90,7 +97,25 @@ router.post('/signup', (req,res)=>{
 });
 
 router.post('/login', passport.authenticate('local'), (req,res) =>{
-  res.send('end');
+  const time = Math.round(new Date().getTime()/1000);
+  /*
+  const filepath = './testing/loginresponse' + time +'.txt';
+
+  fs.writeFile(filepath, util.inspect(res), (err) => {
+    console.log(err);
+  });*/
+  res.send({message: 'fine'});
+});
+
+//this must protected by password, if left...
+router.get('/all', (req, res)=>{
+  User.find()
+  .exec()
+  .then(result =>{
+    res.status(200).json(result);
+  }).catch(err =>{
+    res.status(500).json({error: err});
+  });
 });
 
 
