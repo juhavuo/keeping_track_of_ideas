@@ -20,6 +20,8 @@ const cors = require('cors');
 
 router.use(cors());
 
+require('dotenv').config();
+
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -108,13 +110,27 @@ router.post('/login', passport.authenticate('local'), (req,res) =>{
 });
 
 //this must protected by password, if left...
-router.get('/all', (req, res)=>{
-  User.find()
-  .exec()
-  .then(result =>{
-    res.status(200).json(result);
-  }).catch(err =>{
-    res.status(500).json({error: err});
+router.post('/all', (req, res)=>{
+  const username = req.body.username;
+  const password = req.body.password;
+  bcrypt.compare(password,process.env.LOCAL_ADMIN_PASSWORD).then(result =>{
+    if(result){
+      if(username == process.env.LOCAL_ADMIN_USERCODE){
+        User.find()
+        .exec()
+        .then(findings =>{
+          res.status(200).json(findings);
+        }).catch(err =>{
+          res.status(500).json({error: err});
+        });
+      }else{
+        res.status(401).json({error: 'unauthorized'});
+      }
+    }else{
+      res.status(401).json({error: 'unauthorized'});
+    }
+  }).catch(bcryptError =>{
+    res.status(500).json({error: bcryptError});
   });
 });
 
