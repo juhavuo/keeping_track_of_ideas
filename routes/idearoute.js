@@ -4,6 +4,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+const session = require('express-session');
+const passport = require('passport');
+
 const cors = require('cors');
 
 router.use(cors());
@@ -50,6 +53,12 @@ router.get('/all', (req,res)=>{
 
 //get all public ideas, this is for all
 router.get('/public', (req,res) =>{
+  console.log("userproperty");
+  const userproperty =  req._passport.instance._userProperty || 'user';
+  req[property] = 'user';
+
+  console.log(userproperty);
+
   Idea.find({'is_private': false})
   .exec()
   .then(docs => {

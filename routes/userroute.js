@@ -22,13 +22,7 @@ router.use(cors());
 
 require('dotenv').config();
 
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
-});
 
 const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(
@@ -41,34 +35,32 @@ passport.use(new LocalStrategy(
     .then(result =>{
 
       if(result!=null){ //username exists in database
+        console.log(result);
         const hash = result.password
         console.log(hash);
         bcrypt.compare(password,hash).then(bcryptRes=>{
+          console.log('here in bcrypt beginnig');
           if(bcryptRes){
-            //res.status(200).json({message: "login succeeded"});
             console.log('success');
-            return done(null, {username: username});
+            return done(null, {user: result._id});
             //
           }else{
             done(null, false, {message: 'Login failed'});
             return;
-            //res.status(200).json({message: "login failed"})
           }
         }).catch(bcryptError =>{
           done(null, false, {message: 'Login error'});
           return;
-          //res.status(500).json({error, bcryptError});
         })
       }else{ //username doesn't exist in database
         done(null, false, {message: 'Login failed'});
         return;
-        //res.status(200).json({message: "login failed"});
       }
     })
     .catch(findError => {
       done(null, false, {message: 'Login error'});
       return;
-      //res.status(500).json({error: findError});
+
   })
 }));
 
@@ -99,14 +91,18 @@ router.post('/signup', (req,res)=>{
 });
 
 router.post('/login', passport.authenticate('local'), (req,res) =>{
-  const time = Math.round(new Date().getTime()/1000);
+  //const time = Math.round(new Date().getTime()/1000);
+  console.log('Passport:');
+  console.log(req.session.passport);
+  console.log('cookie');
+  console.log(req.session.cookie);
   /*
   const filepath = './testing/loginresponse' + time +'.txt';
 
   fs.writeFile(filepath, util.inspect(res), (err) => {
     console.log(err);
   });*/
-  res.send({message: 'fine'});
+  res.send(req.session.cookie);
 });
 
 //this must protected by password, if left...
@@ -136,33 +132,6 @@ router.post('/all', (req, res)=>{
 
 
 
-  /*
-  const uname = req.body.username;
-  const pword = req.body.password;
-
-  User.findOne({username:uname})
-  .exec()
-  .then(result =>{
-
-    if(result!=null){ //username exists in database
-      const hash = result.password
-      bcrypt.compare(pword,hash).then(bcryptRes=>{
-        if(bcryptRes){
-          res.status(200).json({message: "login succeeded"});
-          //
-        }else{
-          res.status(200).json({message: "login failed"});
-        }
-      }).catch(bcryptError =>{
-        res.status(500).json({error, bcryptError});
-      })
-    }else{ //username doesn't exist in database
-      res.status(200).json({message: "login failed"});
-    }
-  })
-  .catch(findError => {
-    res.status(500).json({error: findError});
-  });*/
 
 
 module.exports = router;

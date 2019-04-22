@@ -2,7 +2,9 @@
 
 const express = require('express');
 const app = express();
+
 const bodyParser = require('body-parser');
+//const cookieParser = require('cookie-parser');
 
 require('dotenv').config();
 
@@ -36,18 +38,36 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
 
 mongoose.set('useCreateIndex', true);
 
+//app.use(cookieParser);
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: true,
     maxAge: 2 * 60 * 60 * 1000} // 2 hours
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+passport.serializeUser((u, done) => {
+  console.log("user")
+  console.log(u.user);
+  done(null, u.user);
+});
+
+passport.deserializeUser((u, done) => {
+  console.log('deserializing user: ' + u.user);
+  done(null, u.user);
+
+});
+
 app.get('/test', (req,res) =>{
   res.send('Hello world')
+});
+
+app.get('/', (req,res) =>{
+  res.send('Is something here?');
 });
 /*
 app.use(bodyParser.urlencoded({
