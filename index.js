@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 
 const fs = require('fs');
 const https =require('https');
+const cors = require('cors');
 //const http = require('http');
 
 const session = require('express-session');
@@ -39,31 +40,48 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${proce
 mongoose.set('useCreateIndex', true);
 
 //app.use(cookieParser);
+//app.use(cors);
+/*
+app.use((req, res, next) => {
+console.log('am I doing something');
+res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+res.header("Access-Control-Allow-Credentials", true);
+res.header(
+"Access-Control-Allow-Headers",
+"Origin, X-Requested-With, Content-Type, Accept"
+);
+next();
+});*/
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
-  saveUninitialized: false,
-  cookie: { secure: true,
+  saveUninitialized: true,
+  cookie: { //secure: true,
     maxAge: 2 * 60 * 60 * 1000} // 2 hours
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((u, done) => {
-  console.log("user")
-  console.log(u.user);
-  done(null, u.user);
+
+
+passport.serializeUser((user, done) => {
+  console.log("user serialization -begin-")
+  console.log(user.user);
+  console.log("user serializetion -end-");
+  done(null, user);
 });
 
-passport.deserializeUser((u, done) => {
-  console.log('deserializing user: ' + u.user);
-  done(null, u.user);
+passport.deserializeUser((_id, done) => {
+  console.log('DESERIALIZATION');
+  done(null, _id)
 
 });
 
 app.get('/test', (req,res) =>{
-  res.send('Hello world')
+  const result = res;
+  console.log(result);
+  res.status(200).json({'message':'check console'});
 });
 
 app.get('/', (req,res) =>{

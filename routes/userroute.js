@@ -42,7 +42,7 @@ passport.use(new LocalStrategy(
           console.log('here in bcrypt beginnig');
           if(bcryptRes){
             console.log('success');
-            return done(null, {user: result._id});
+            return done(null, {user: result});
             //
           }else{
             done(null, false, {message: 'Login failed'});
@@ -92,10 +92,10 @@ router.post('/signup', (req,res)=>{
 
 router.post('/login', passport.authenticate('local'), (req,res) =>{
   //const time = Math.round(new Date().getTime()/1000);
-  console.log('Passport:');
-  console.log(req.session.passport);
-  console.log('cookie');
-  console.log(req.session.cookie);
+  //console.log('Passport:');
+  //console.log(req.session.passport);
+  //console.log('cookie');
+  //console.log(req.session.cookie);
   /*
   const filepath = './testing/loginresponse' + time +'.txt';
 
