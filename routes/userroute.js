@@ -22,12 +22,10 @@ router.use(cors());
 
 require('dotenv').config();
 
-
-
 const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(
   (username, password, done) => {
-
+    console.log('what is going down');
     console.log(username);
     console.log(password);
     User.findOne({username:username})
@@ -86,7 +84,7 @@ router.post('/signup', (req,res)=>{
       res.status(500).json({error: saveError});
     });
   }).catch(hashError =>{
-    {error: hashError};
+    res.status(500).json({error: hashError})
   });
 });
 
@@ -102,7 +100,14 @@ router.post('/login', passport.authenticate('local'), (req,res) =>{
   fs.writeFile(filepath, util.inspect(res), (err) => {
     console.log(err);
   });*/
-  res.send(req.session.cookie);
+  res.status(200).json({message: 'OK'});
+});
+
+router.get('/logout', (req,res) =>{
+  req.session.destroy();
+  console.log('at logout, userproperty');
+  console.log(req._passport);
+  res.status(200).json({message: 'logging out'});
 });
 
 //this must protected by password, if left...

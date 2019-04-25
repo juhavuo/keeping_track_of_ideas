@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 
 const bodyParser = require('body-parser');
-//const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 require('dotenv').config();
 
@@ -22,7 +22,9 @@ const session = require('express-session');
 const passport = require('passport');
 
 const sslkey = fs.readFileSync('ssl-key.pem');
-const sslcert = fs.readFileSync('ssl-cert.pem')
+const sslcert = fs.readFileSync('ssl-cert.pem');
+
+const User = require('./models/user');
 
 const options = {
       key: sslkey,
@@ -55,8 +57,8 @@ next();
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   cookie: { //secure: true,
     maxAge: 2 * 60 * 60 * 1000} // 2 hours
 }));
@@ -72,21 +74,14 @@ passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser((_id, done) => {
+passport.deserializeUser((user, done) => {
   console.log('DESERIALIZATION');
-  done(null, _id)
+  done(null, user);
 
 });
 
-app.get('/test', (req,res) =>{
-  const result = res;
-  console.log(result);
-  res.status(200).json({'message':'check console'});
-});
 
-app.get('/', (req,res) =>{
-  res.send('Is something here?');
-});
+
 /*
 app.use(bodyParser.urlencoded({
     extended: true
@@ -97,6 +92,16 @@ app.use(bodyParser.json());
 app.use('/ideas', ideaRouter);
 
 app.use('/users', userRouter);
+
+app.get('/test', (req,res) =>{
+  const result = res;
+  console.log(result);
+  res.status(200).json({'message':'check console'});
+});
+
+app.get('/', (req,res) =>{
+  res.send('Is something here?');
+});
 
 https.createServer(options, app).listen(3000);
 /*

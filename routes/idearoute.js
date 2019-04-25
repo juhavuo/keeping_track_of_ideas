@@ -12,7 +12,7 @@ const passport = require('passport');
 const cors = require('cors');
 
 router.use(cors());
-
+/*
 const isLoggedIn = (req, res, next) => {
   if (req.session.user != null) {
     console.log("is auth ok '" + req.session.user.userId + "'");
@@ -22,7 +22,9 @@ const isLoggedIn = (req, res, next) => {
 
   }
   return next();
-}
+}*/
+
+
 
 router.post('/', (req, res) => {
 
@@ -86,48 +88,19 @@ router.post('/all', (req, res) => {
   });
 });
 
-//get all ideas by user, needs authentication of user, this must be
-//changed, when the authentication is working properly
+//this should have authentication, but for now it is removed, NOT SECURE
 router.post('/own', (req, res) => {
-  const password = req.body.password;
   const uname = req.body.username;
-  User.findOne({
-      username: uname
-    })
+  Idea.find({owner: uname})
     .exec()
-    .then(search_result => {
-      if (search_result != null) {
-        const searched_user = search_result;
-        bcrypt.compare(password, searched_user.password).then(bcrypt_result => {
-          if (bcrypt_result) {
-            console.log("bcrypt jees");
-            Idea.find({owner: uname})
-              .exec()
-              .then(ideas => {
-                console.log(ideas);
-                res.status(200).json(ideas);
+    .then(ideas => {
+      console.log(ideas.title);
+      res.status(200).json(ideas);
 
-              }).catch(ideas_find_error => {
-                res.status(500).json({error: ideas_find_error});
-              });
-          } else {
-            res.status(402).json({
-              message: 'no results'
-            });
-          }
-        }).catch(bcryptError => {
-          res.status(500).json({
-            error: bcryptError
-          });
-        });
-      }else{
-        res.status(402).json({message: 'no results'});
-      }
-    }).catch(err => {
-      res.status(500).json({
-        error: err
-      });
+    }).catch(ideas_find_error => {
+      res.status(500).json({error: ideas_find_error});
     });
+
 });
 
 //get all public ideas, this is for all
@@ -208,6 +181,7 @@ router.delete('/:ideaId', (req, res) => {
     })
     .exec()
     .then(result => {
+      console.log('idea with id ' + id + ' got removed');
       res.status(200).json(result);
     }).catch(err => {
       res.status(500).json({
@@ -217,3 +191,47 @@ router.delete('/:ideaId', (req, res) => {
 });
 
 module.exports = router;
+
+/* **earlier version with authentication vol1***
+router.post('/own', (req, res) => {
+  const password = req.body.password;
+  const uname = req.body.username;
+  User.findOne({
+      username: uname
+    })
+    .exec()
+    .then(search_result => {
+      if (search_result != null) {
+        const searched_user = search_result;
+        bcrypt.compare(password, searched_user.password).then(bcrypt_result => {
+          if (bcrypt_result) {
+            console.log("bcrypt jees");
+            Idea.find({owner: uname})
+              .exec()
+              .then(ideas => {
+                console.log(ideas);
+                res.status(200).json(ideas);
+
+              }).catch(ideas_find_error => {
+                res.status(500).json({error: ideas_find_error});
+              });
+          } else {
+            res.status(402).json({
+              message: 'no results'
+            });
+          }
+        }).catch(bcryptError => {
+          res.status(500).json({
+            error: bcryptError
+          });
+        });
+      }else{
+        res.status(402).json({message: 'no results'});
+      }
+    }).catch(err => {
+      res.status(500).json({
+        error: err
+      });
+    });
+});
+*/
