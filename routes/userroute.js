@@ -4,17 +4,18 @@ const express = require('express');
 
 const router = express.Router();
 const mongoose = require('mongoose');
-
 const User = require('../models/user');
 
-const bcrypt = require('bcrypt');
-const saltRound = 12;
+const Usercontroller = require('../controllers/usercontroller');
 
 const session = require('express-session');
 const passport = require('passport');
 
 const fs = require('fs');
 const util = require('util');
+
+const bcrypt = require('bcrypt');
+const saltRound = 12;
 
 const cors = require('cors');
 
@@ -25,7 +26,7 @@ require('dotenv').config();
 const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    console.log('what is going down');
+    console.log('at beginning');
     console.log(username);
     console.log(password);
     User.findOne({username:username})
@@ -43,7 +44,9 @@ passport.use(new LocalStrategy(
             return done(null, result);
             //
           }else{
+            console.log('bcryptRes = false');
             done(null, false, {message: 'Login failed'});
+
             return;
           }
         }).catch(bcryptError =>{
@@ -62,81 +65,12 @@ passport.use(new LocalStrategy(
   })
 }));
 
-router.post('/signup', (req,res)=>{
-  const uname = req.body.username;
-  const pword = req.body.password;
+router.post('/login', passport.authenticate('local'), Usercontroller.login);
 
-  console.log(pword);
+router.post('/signup', Usercontroller.signup);
 
-  bcrypt.hash(pword, saltRound).then(hash =>{
-    const user = new User({
-      _id: new mongoose.Types.ObjectId(),
-      username: uname,
-      password: hash
-    });
+router.get('/logout', Usercontroller.logout);
 
-    console.log(hash);
-
-    user.save().then(result =>{
-      console.log(result);
-      res.status(200).json(result);
-    }).catch(saveError =>{
-      res.status(500).json({error: saveError});
-    });
-  }).catch(hashError =>{
-    res.status(500).json({error: hashError})
-  });
-});
-
-router.post('/login', passport.authenticate('local'), (req,res) =>{
-  //const time = Math.round(new Date().getTime()/1000);
-  //console.log('Passport:');
-  //console.log(req.session.passport);
-  //console.log('cookie');
-  //console.log(req.session.cookie);
-  /*
-  const filepath = './testing/loginresponse' + time +'.txt';
-
-  fs.writeFile(filepath, util.inspect(res), (err) => {
-    console.log(err);
-  });*/
-  res.status(200).json({message: 'OK'});
-});
-
-router.get('/logout', (req,res) =>{
-  req.session.destroy();
-  console.log('at logout, userproperty');
-  console.log(req._passport);
-  res.status(200).json({message: 'logging out'});
-});
-
-//this must protected by password, if left...
-router.post('/all', (req, res)=>{
-  const username = req.body.username;
-  const password = req.body.password;
-  bcrypt.compare(password,process.env.LOCAL_ADMIN_PASSWORD).then(result =>{
-    if(result){
-      if(username == process.env.LOCAL_ADMIN_USERCODE){
-        User.find()
-        .exec()
-        .then(findings =>{
-          res.status(200).json(findings);
-        }).catch(err =>{
-          res.status(500).json({error: err});
-        });
-      }else{
-        res.status(401).json({error: 'unauthorized'});
-      }
-    }else{
-      res.status(401).json({error: 'unauthorized'});
-    }
-  }).catch(bcryptError =>{
-    res.status(500).json({error: bcryptError});
-  });
-});
-
-
-
-
+router.post('/all', Usercontroller.find_all);
 
 module.exports = router;
