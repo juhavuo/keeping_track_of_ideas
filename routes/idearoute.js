@@ -125,6 +125,17 @@ router.get('/public', (req, res) => {
     });
 });
 
+router.get('/public/searchByTag/:t',(req,res)=>{
+  const searched_tag = req.params.t;
+  Idea.find({$and:[{'is_private': false},{keywords: searched_tag}]})
+  .exec()
+  .then(docs =>{
+    res.status(200).json(docs);
+  }).catch(err =>{
+    res.status(500).json({error:err});
+  });
+});
+
 //testing to get messages from certain time period
 router.post('/public/timetest', (req, res) => {
   const timeline_begin = req.body.timeline_begin;
@@ -143,7 +154,7 @@ router.post('/public/timetest', (req, res) => {
     .then(docs => {
       res.status(200).json(docs);
     }).catch(err => {
-      res.status(500).json(docs);
+      res.status(500).json({error: err});
     });
 });
 
@@ -191,47 +202,3 @@ router.delete('/:ideaId', (req, res) => {
 });
 
 module.exports = router;
-
-/* **earlier version with authentication vol1***
-router.post('/own', (req, res) => {
-  const password = req.body.password;
-  const uname = req.body.username;
-  User.findOne({
-      username: uname
-    })
-    .exec()
-    .then(search_result => {
-      if (search_result != null) {
-        const searched_user = search_result;
-        bcrypt.compare(password, searched_user.password).then(bcrypt_result => {
-          if (bcrypt_result) {
-            console.log("bcrypt jees");
-            Idea.find({owner: uname})
-              .exec()
-              .then(ideas => {
-                console.log(ideas);
-                res.status(200).json(ideas);
-
-              }).catch(ideas_find_error => {
-                res.status(500).json({error: ideas_find_error});
-              });
-          } else {
-            res.status(402).json({
-              message: 'no results'
-            });
-          }
-        }).catch(bcryptError => {
-          res.status(500).json({
-            error: bcryptError
-          });
-        });
-      }else{
-        res.status(402).json({message: 'no results'});
-      }
-    }).catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
-});
-*/

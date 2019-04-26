@@ -40,7 +40,7 @@ passport.use(new LocalStrategy(
           console.log('here in bcrypt beginnig');
           if(bcryptRes){
             console.log('success');
-            return done(null, {user: result});
+            return done(null, result);
             //
           }else{
             done(null, false, {message: 'Login failed'});
