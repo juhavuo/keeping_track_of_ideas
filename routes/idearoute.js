@@ -1,5 +1,3 @@
-const Idea = require('../models/idea');
-const User = require('../models/user');
 const Ideacontroller = require('../controllers/ideacontroller');
 
 const express = require('express');
@@ -12,16 +10,14 @@ const passport = require('passport');
 
 const cors = require('cors');
 
+const Jwthandler = require('../config/jwthandler');
+
 router.use(cors());
 /*
 const isLoggedIn = (req, res, next) => {
-  if (req.session.user != null) {
-    console.log("is auth ok '" + req.session.user.userId + "'");
-
-  } else {
-    console.log("req.session.user = null");
-
-  }
+  console.log('inside isLoggedIn-function');
+  console.log(req._passport);
+  //console.log(req._passport.instance);
   return next();
 }*/
 
@@ -33,7 +29,7 @@ router.post('/', Ideacontroller.save_idea);
 router.post('/all', Ideacontroller.find_all_ideas);
 
 //this should have authentication, but for now it is removed, NOT SECURE
-router.post('/own', Ideacontroller.find_all_ideas_from_user);
+router.post('/own',Jwthandler.verifyToken, Ideacontroller.find_all_ideas_from_user);
 
 //get all public ideas, this is for all
 router.get('/public', Ideacontroller.find_all_public_ideas);

@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const session = require('express-session');
 const passport = require('passport');
@@ -63,16 +64,25 @@ exports.find_all_ideas = (req, res) => {
 }
 
 exports.find_all_ideas_from_user = (req, res) => {
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if(err) {
+      res.sendStatus(403);
+    } else {
+      res.json({
+        authData
+      });
+    }
+});
+/*
  const uname = req.body.username;
  Idea.find({owner: uname})
    .exec()
    .then(ideas => {
-     console.log(ideas.title);
      res.status(200).json(ideas);
 
    }).catch(ideas_find_error => {
      res.status(500).json({error: ideas_find_error});
-   });
+   });*/
 
 }
 
