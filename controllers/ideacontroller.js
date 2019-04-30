@@ -187,6 +187,53 @@ exports.update_publicity_of_idea = (req, res) => {
   });
 }
 
+exports.add_like_to_idea = (req, res) => {
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+        const userId = authData.user._id;
+        const ideaId = req.params.ideaId;
+
+        Idea.findById(ideaId)
+        .exec()
+        .then(result =>{
+          if(result != null){
+            let likers = result.liked_by;
+            let userIdFound = false;
+            for(let i = 0; i< likers.length; ++i){
+              if(likers[i] == userId){
+                userIdFound = true;
+                break;
+              }
+            }
+
+            if(userIdFound){
+              res.status(200).json({message: 'already liked'});
+            }else{
+              likers.push(userId);
+              Idea.updateOne({_id: ideaId}, {
+                $set: {
+                  liked_by: likers
+                }})
+                .exec()
+                .then(result =>{
+                    res.status(200).json(result);
+                }).catch(updateError =>{
+                  res.status(500).json({error: updateError});
+                })
+            }
+          }else{
+            res.status(200).json({message: 'no such id'});
+          }
+        }).catch(findError =>{
+          res.status(500).json({error: findError});
+        });
+
+    }
+  });
+}
+
 exports.delete_idea = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {

@@ -11,7 +11,8 @@ const ideaSchema = mongoose.Schema({
   details: String,
   keywords: [{type: String}],
   time: {type: Date, default: Date.now()},
-  links: [{type: String}]
+  links: [{type: String}],
+  liked_by: [{type: String}]
 
 });
 

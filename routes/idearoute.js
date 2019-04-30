@@ -43,6 +43,8 @@ router.post('/public/timetest', Ideacontroller.find_public_ideas_certain_time);
 //changing the posted idea form public to private or other way around, needs autohorization of that user added later
 router.patch('/:ideaId/changeVisibility', Jwthandler.verifyToken, Ideacontroller.update_publicity_of_idea);
 
+router.patch('/:ideaId/addLike', Jwthandler.verifyToken, Ideacontroller.add_like_to_idea);
+
 //delete the posted // IDEA
 router.delete('/:ideaId', Jwthandler.verifyToken, Ideacontroller.delete_idea);
 
