@@ -53,7 +53,8 @@ exports.signup = (req, res) => {
 }
 
 exports.logout = (req, res) => {
-
+  console.log('at logout');
+  console.log(req.session);
   req.session.destroy();
   if (req.session != undefined) {
     console.log(req.session.cookie);

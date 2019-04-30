@@ -23,9 +23,9 @@ const isLoggedIn = (req, res, next) => {
 
 
 
-router.post('/', Ideacontroller.save_idea);
+router.post('/',Jwthandler.verifyToken, Ideacontroller.save_idea);
 
-//for testing purposes, maybe for superuser, needs to add authorization then
+//for testing purposis, uses passport
 router.post('/all', Ideacontroller.find_all_ideas);
 
 //this should have authentication, but for now it is removed, NOT SECURE
@@ -41,9 +41,9 @@ router.post('/public/timetest', Ideacontroller.find_public_ideas_certain_time);
 
 
 //changing the posted idea form public to private or other way around, needs autohorization of that user added later
-router.patch('/:ideaId/changeVisibility', Ideacontroller.update_publicity_of_idea);
+router.patch('/:ideaId/changeVisibility', Jwthandler.verifyToken, Ideacontroller.update_publicity_of_idea);
 
 //delete the posted // IDEA
-router.delete('/:ideaId', Ideacontroller.delete_idea);
+router.delete('/:ideaId', Jwthandler.verifyToken, Ideacontroller.delete_idea);
 
 module.exports = router;

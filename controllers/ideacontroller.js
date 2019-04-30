@@ -11,24 +11,32 @@ const session = require('express-session');
 const passport = require('passport');
 
 exports.save_idea = (req, res) => {
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.status(403).json({
+        error: err
+      });
+    } else {
+      const idea = new Idea({
+        _id: new mongoose.Types.ObjectId(),
+        owner: req.body.owner,
+        is_private: req.body.is_private,
+        title: req.body.title,
+        details: req.body.details,
+        keywords: req.body.keywords,
+        links: req.body.links
+      });
 
-  const idea = new Idea({
-    _id: new mongoose.Types.ObjectId(),
-    owner: req.body.owner,
-    is_private: req.body.is_private,
-    title: req.body.title,
-    details: req.body.details,
-    keywords: req.body.keywords,
-    links: req.body.links
+      idea.save().then(result => {
+        res.status(200).json(idea);
+      }).catch(err => {
+        res.status(500).json({
+          error: err
+        })
+      });
+    }
   });
 
-  idea.save().then(result => {
-    res.status(200).json(idea);
-  }).catch(err => {
-    res.status(500).json({
-      error: err
-    })
-  });
 }
 
 exports.find_all_ideas = (req, res) => {
@@ -150,41 +158,55 @@ exports.find_public_ideas_certain_time = (req, res) => {
 }
 
 exports.update_publicity_of_idea = (req, res) => {
-  const id = req.params.ideaId;
-  const is_private = req.body.is_private;
 
-  Idea.updateOne({
-      _id: id
-    }, {
-      $set: {
-        is_private: is_private
-      }
-    })
-    .exec()
-    .then(result => {
-      res.status(200).json({
-        result
-      });
-    }).catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const id = req.params.ideaId;
+      const is_private = req.body.is_private;
+
+      Idea.updateOne({
+          _id: id
+        }, {
+          $set: {
+            is_private: is_private
+          }
+        })
+        .exec()
+        .then(result => {
+          res.status(200).json({
+            result
+          });
+        }).catch(err => {
+          res.status(500).json({
+            error: err
+          });
+        });
+    }
+  });
 }
 
 exports.delete_idea = (req, res) => {
-  const id = req.params.ideaId;
-  console.log(id);
-  Idea.remove({
-      _id: id
-    })
-    .exec()
-    .then(result => {
-      console.log('idea with id ' + id + ' got removed');
-      res.status(200).json(result);
-    }).catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const id = req.params.ideaId;
+      console.log(id);
+      Idea.remove({
+          _id: id
+        })
+        .exec()
+        .then(result => {
+          console.log('idea with id ' + id + ' got removed');
+          res.status(200).json(result);
+        }).catch(err => {
+          res.status(500).json({
+            error: err
+          });
+        });
+    }
+  });
+
 }
