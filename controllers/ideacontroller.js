@@ -65,24 +65,24 @@ exports.find_all_ideas = (req, res) => {
 
 exports.find_all_ideas_from_user = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
-    if(err) {
+    if (err) {
       res.sendStatus(403);
     } else {
-      res.json({
-        authData
-      });
-    }
-});
-/*
- const uname = req.body.username;
- Idea.find({owner: uname})
-   .exec()
-   .then(ideas => {
-     res.status(200).json(ideas);
+      console.log(authData.user.username);
+      Idea.find({
+          owner: authData.user.username
+        })
+        .exec()
+        .then(ideas => {
+          res.status(200).json(ideas);
 
-   }).catch(ideas_find_error => {
-     res.status(500).json({error: ideas_find_error});
-   });*/
+        }).catch(ideas_find_error => {
+          res.status(500).json({
+            error: ideas_find_error
+          });
+        });
+    }
+  });
 
 }
 
@@ -107,15 +107,23 @@ exports.find_all_public_ideas = (req, res) => {
     });
 }
 
-exports.find_public_ideas_by_tag = (req,res)=>{
+exports.find_public_ideas_by_tag = (req, res) => {
   const searched_tag = req.params.t;
-  Idea.find({$and:[{'is_private': false},{keywords: searched_tag}]})
-  .exec()
-  .then(docs =>{
-    res.status(200).json(docs);
-  }).catch(err =>{
-    res.status(500).json({error:err});
-  });
+  Idea.find({
+      $and: [{
+        'is_private': false
+      }, {
+        keywords: searched_tag
+      }]
+    })
+    .exec()
+    .then(docs => {
+      res.status(200).json(docs);
+    }).catch(err => {
+      res.status(500).json({
+        error: err
+      });
+    });
 }
 
 exports.find_public_ideas_certain_time = (req, res) => {
@@ -135,7 +143,9 @@ exports.find_public_ideas_certain_time = (req, res) => {
     .then(docs => {
       res.status(200).json(docs);
     }).catch(err => {
-      res.status(500).json({error: err});
+      res.status(500).json({
+        error: err
+      });
     });
 }
 

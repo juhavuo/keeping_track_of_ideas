@@ -55,7 +55,6 @@ exports.signup = (req, res) => {
 exports.logout = (req, res) => {
 
   req.session.destroy();
-  console.log('at logout, userproperty');
   if (req.session != undefined) {
     console.log(req.session.cookie);
   } else {
