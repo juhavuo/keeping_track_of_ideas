@@ -11,6 +11,8 @@ const Usercontroller = require('../controllers/usercontroller');
 const session = require('express-session');
 const passport = require('passport');
 
+const Jwthandler = require('../config/jwthandler');
+
 const cors = require('cors');
 
 router.use(cors());

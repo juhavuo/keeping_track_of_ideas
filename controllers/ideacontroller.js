@@ -19,7 +19,8 @@ exports.save_idea = (req, res) => {
     } else {
       const idea = new Idea({
         _id: new mongoose.Types.ObjectId(),
-        owner: req.body.owner,
+        owner: authData.user.username,
+        owner_id: authData.user._id,
         is_private: req.body.is_private,
         title: req.body.title,
         details: req.body.details,
@@ -48,6 +49,7 @@ exports.find_all_ideas = (req, res) => {
         Idea.find()
           .exec()
           .then(findings => {
+
             res.status(200).json(findings);
           }).catch(err => {
             res.status(500).json({
@@ -101,9 +103,7 @@ exports.find_all_public_ideas = (req, res) => {
 
   console.log(userproperty);
 
-  Idea.find({
-      'is_private': false
-    })
+  Idea.find({'is_private': false})
     .exec()
     .then(docs => {
       res.status(200).json(docs);
@@ -117,12 +117,7 @@ exports.find_all_public_ideas = (req, res) => {
 
 exports.find_public_ideas_by_tag = (req, res) => {
   const searched_tag = req.params.t;
-  Idea.find({
-      $and: [{
-        'is_private': false
-      }, {
-        keywords: searched_tag
-      }]
+  Idea.find({$and: [{'is_private': false}, {keywords: searched_tag}]
     })
     .exec()
     .then(docs => {
@@ -166,13 +161,7 @@ exports.update_publicity_of_idea = (req, res) => {
       const id = req.params.ideaId;
       const is_private = req.body.is_private;
 
-      Idea.updateOne({
-          _id: id
-        }, {
-          $set: {
-            is_private: is_private
-          }
-        })
+      Idea.updateOne({_id: id}, {$set: {is_private: is_private}})
         .exec()
         .then(result => {
           res.status(200).json({
@@ -212,10 +201,7 @@ exports.add_like_to_idea = (req, res) => {
               res.status(200).json({message: 'already liked'});
             }else{
               likers.push(userId);
-              Idea.updateOne({_id: ideaId}, {
-                $set: {
-                  liked_by: likers
-                }})
+              Idea.updateOne({_id: ideaId}, {$set: {liked_by: likers}})
                 .exec()
                 .then(result =>{
                     res.status(200).json(result);
@@ -229,6 +215,32 @@ exports.add_like_to_idea = (req, res) => {
         }).catch(findError =>{
           res.status(500).json({error: findError});
         });
+
+    }
+  });
+}
+
+exports.add_comment_to_idea = (req, res) => {
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+
+      const idea_id = req.params.ideaId;
+
+      const comment = {
+        commenter_name: authData.user.username,
+        commenter_id: authData.user._id,
+        comment_text: req.body.comment
+      };
+
+      Idea.updateOne({_id: idea_id}, {$push: {comments: comment}})
+      .exec()
+      .then(result => {
+        res.status(200).json(result);
+      }).catch(err => {
+        res.status(500).json({error:err});
+      })
 
     }
   });

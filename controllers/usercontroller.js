@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Idea = require('../models/idea');
 
 const session = require('express-session');
 const passport = require('passport');
@@ -17,8 +18,17 @@ exports.login = (req, res) => {
   console.log(req.session.passport.user);
 
   const user = req.session.passport.user;
-  jwt.sign({user}, process.env.JWT_SECRET, {expiresIn: '2h'}, (err, token) => {
-    res.json({token});
+  jwt.sign({
+    user
+  }, process.env.JWT_SECRET, {
+    expiresIn: '2h'
+  }, (err, token) => {
+    console.log('sending id');
+    console.log(req.session.passport.user._id);
+    res.json({
+      'token': token,
+      'id': req.session.passport.user._id
+    });
   });
 }
 

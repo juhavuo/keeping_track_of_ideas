@@ -48,4 +48,6 @@ router.patch('/:ideaId/addLike', Jwthandler.verifyToken, Ideacontroller.add_like
 //delete the posted // IDEA
 router.delete('/:ideaId', Jwthandler.verifyToken, Ideacontroller.delete_idea);
 
+router.patch('/:ideaId/addComment', Jwthandler.verifyToken, Ideacontroller.add_comment_to_idea);
+
 module.exports = router;
