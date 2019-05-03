@@ -13,22 +13,13 @@ const cors = require('cors');
 const Jwthandler = require('../config/jwthandler');
 
 router.use(cors());
-/*
-const isLoggedIn = (req, res, next) => {
-  console.log('inside isLoggedIn-function');
-  console.log(req._passport);
-  //console.log(req._passport.instance);
-  return next();
-}*/
-
-
 
 router.post('/',Jwthandler.verifyToken, Ideacontroller.save_idea);
 
-//for testing purposis, uses passport
+//for testing purposis, needs LOCAL_ADMIN credentials
 router.post('/all', Ideacontroller.find_all_ideas);
 
-//this should have authentication, but for now it is removed, NOT SECURE
+//view ideas of one user
 router.post('/own',Jwthandler.verifyToken, Ideacontroller.find_all_ideas_from_user);
 
 //get all public ideas, this is for all

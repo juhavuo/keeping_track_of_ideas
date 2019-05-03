@@ -13,6 +13,10 @@ const mongoose = require('mongoose');
 
 const jwt = require('jsonwebtoken');
 
+/*
+  Login. Creates token to be sent to client that is needed in authentication in
+  many methods.
+*/
 exports.login = (req, res) => {
   console.log('exports login:');
   console.log(req.session.passport.user);
@@ -32,6 +36,9 @@ exports.login = (req, res) => {
   });
 }
 
+/*
+  Adding user to the database, user needs to have unique username
+*/
 exports.signup = (req, res) => {
   const uname = req.body.username;
   const pword = req.body.password;
@@ -62,6 +69,10 @@ exports.signup = (req, res) => {
   });
 }
 
+
+/*
+  Logs out the user and destroys the session attached to request
+*/
 exports.logout = (req, res) => {
   console.log('at logout');
   console.log(req.session);
@@ -76,7 +87,9 @@ exports.logout = (req, res) => {
   });
 }
 
-//this must protected by password, if left...
+/*
+  Gets all user information, authentication with LOCAL_ADMIN credentials
+*/
 exports.find_all = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;

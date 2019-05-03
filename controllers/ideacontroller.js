@@ -10,6 +10,10 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const passport = require('passport');
 
+
+/*
+  To save an idea to the database.
+*/
 exports.save_idea = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
@@ -40,6 +44,9 @@ exports.save_idea = (req, res) => {
 
 }
 
+/*
+  For testing purposes, finds all ideas needs authentication as LOCAL_ADMIN
+*/
 exports.find_all_ideas = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -49,7 +56,6 @@ exports.find_all_ideas = (req, res) => {
         Idea.find()
           .exec()
           .then(findings => {
-
             res.status(200).json(findings);
           }).catch(err => {
             res.status(500).json({
@@ -73,6 +79,9 @@ exports.find_all_ideas = (req, res) => {
   });
 }
 
+/*
+  Find all ideas from one user, needs token of that user
+*/
 exports.find_all_ideas_from_user = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
@@ -96,6 +105,9 @@ exports.find_all_ideas_from_user = (req, res) => {
 
 }
 
+/*
+  find all public ideas, needs no authentication
+*/
 exports.find_all_public_ideas = (req, res) => {
 
   console.log("userproperty");
@@ -115,6 +127,9 @@ exports.find_all_public_ideas = (req, res) => {
     });
 }
 
+/*
+   Finds all public ideas with tag, no authentication
+*/
 exports.find_public_ideas_by_tag = (req, res) => {
   const searched_tag = req.params.t;
   Idea.find({$and: [{'is_private': false}, {keywords: searched_tag}]
@@ -129,6 +144,9 @@ exports.find_public_ideas_by_tag = (req, res) => {
     });
 }
 
+/*
+  Find public ideas between timepoints, no authentication needed
+*/
 exports.find_public_ideas_certain_time = (req, res) => {
   const timeline_begin = req.body.timeline_begin;
   const timeline_end = req.body.timeline_end;
@@ -152,8 +170,10 @@ exports.find_public_ideas_certain_time = (req, res) => {
     });
 }
 
+/*
+  Changes the is_private property of idea, needs user authentcation
+*/
 exports.update_publicity_of_idea = (req, res) => {
-
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
       res.sendStatus(403);
@@ -176,6 +196,11 @@ exports.update_publicity_of_idea = (req, res) => {
   });
 }
 
+/*
+  Adds like to idea, needs authentication token from user,
+  idea can't be liked, if user has already liked an idea.
+  Instead of number of likes, the list of user ids is stored in database
+*/
 exports.add_like_to_idea = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
@@ -196,7 +221,6 @@ exports.add_like_to_idea = (req, res) => {
                 break;
               }
             }
-
             if(userIdFound){
               res.status(200).json({message: 'already liked'});
             }else{
@@ -220,6 +244,10 @@ exports.add_like_to_idea = (req, res) => {
   });
 }
 
+/*
+  To add comment to idea, needs user authentication token,
+  new comments are pushed to database
+*/
 exports.add_comment_to_idea = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
@@ -246,6 +274,9 @@ exports.add_comment_to_idea = (req, res) => {
   });
 }
 
+/*
+  Removes idea from database, needs user authentication
+*/
 exports.delete_idea = (req, res) => {
   jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
     if (err) {
