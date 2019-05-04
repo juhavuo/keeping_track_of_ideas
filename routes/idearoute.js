@@ -41,4 +41,6 @@ router.delete('/:ideaId', Jwthandler.verifyToken, Ideacontroller.delete_idea);
 
 router.patch('/:ideaId/addComment', Jwthandler.verifyToken, Ideacontroller.add_comment_to_idea);
 
+router.patch('/:ideaId/removeComment', Jwthandler.verifyToken, Ideacontroller.remove_comment_from_idea);
+
 module.exports = router;

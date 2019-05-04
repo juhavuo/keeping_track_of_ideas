@@ -274,6 +274,32 @@ exports.add_comment_to_idea = (req, res) => {
   });
 }
 
+exports.remove_comment_from_idea = (req, res )=>{
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const commenter_id = req.body.commenter_id;
+      const comment_id = req.body.comment_id;
+      const userId = authData.user._id;
+      const ideaId = req.params.ideaId;
+
+      if(commenter_id == userId){
+
+        Idea.updateOne({_id: ideaId},{$pull: {comments:{_id: comment_id}}})
+        .exec()
+        .then(result => {
+          res.status(200).json({result});
+        }).catch(err =>{
+          res.status(500).json({error:err});
+        });
+      }else{
+        res.status(200).json({message: 'removal not possible'});
+      }
+    }
+  });
+}
+
 /*
   Removes idea from database, needs user authentication
 */

@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 
 
-/*
-
-*/
+//For storing user info
 const userSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   username: {

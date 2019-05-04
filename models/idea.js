@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
-
+//for storing data about ideas
 //owner_id and commenter_id are there so that it would be easier to implement changeable usernames
-
 const ideaSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   owner: String,
