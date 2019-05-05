@@ -79,6 +79,25 @@ exports.find_all_ideas = (req, res) => {
   });
 }
 
+exports.find_idea_by_id = (req,res) =>{
+  jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      const idea_id = req.params.ideaId;
+      console.log('findbyid');
+      console.log(idea_id);
+      Idea.findOne({_id:idea_id})
+      .exec()
+      .then(result =>{
+        res.status(200).json(result);
+      }).catch(err => {
+        res.status(500).json({err: error});
+      })
+    }
+  });
+}
+
 /*
   Find all ideas from one user, needs token of that user
 */
@@ -110,10 +129,6 @@ exports.find_all_ideas_from_user = (req, res) => {
 */
 exports.find_all_public_ideas = (req, res) => {
 
-  console.log("userproperty");
-  const userproperty = req._passport.instance._userproperty;
-
-  console.log(userproperty);
 
   Idea.find({'is_private': false})
     .exec()
@@ -324,5 +339,26 @@ exports.delete_idea = (req, res) => {
         });
     }
   });
+}
 
+exports.modify_idea = (req, res) => {
+    jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+      if (err) {
+        res.sendStatus(403);
+      } else {
+        const idea_id = req.params.ideaId;
+        const t = req.body.title;
+        const d = req.body.details;
+        const tags = req.body.tags;
+        const l = req.body.links;
+
+        Idea.updateOne({_id: idea_id},{$set: {title: t,details: d, keywords: tags, links: l}})
+        .exec()
+        .then(result => {
+          res.status(200).json(result);
+        }).catch(err =>{
+          res.status(500).json({error:err});
+        })
+      }
+  });
 }

@@ -27,12 +27,17 @@ router.get('/public', Ideacontroller.find_all_public_ideas);
 
 router.get('/public/searchByTag/:t', Ideacontroller.find_public_ideas_by_tag);
 
+//for getting one idea with id to editing in frontend
+router.post('/:ideaId', Jwthandler.verifyToken, Ideacontroller.find_idea_by_id);
+
 //testing to get messages from certain time period
 router.post('/public/timetest', Ideacontroller.find_public_ideas_certain_time);
 
 
 //changing the posted idea form public to private or other way around, needs autohorization of that user added later
 router.patch('/:ideaId/changeVisibility', Jwthandler.verifyToken, Ideacontroller.update_publicity_of_idea);
+
+router.patch('/:ideaId/modifyIdea', Jwthandler.verifyToken, Ideacontroller.modify_idea);
 
 router.patch('/:ideaId/addLike', Jwthandler.verifyToken, Ideacontroller.add_like_to_idea);
 
